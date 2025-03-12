@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flight Data Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        form {
+            background-color: white;
+            width: 50%;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .container {
+            max-width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Flight Data Dashboard</h1>
+
+    <div class="container">
+        <!-- Search Form -->
+        <form method="GET" action="/" id="searchForm">
+            <h3>Search Flights</h3>
+            <label for="airline">Search by Airline:</label>
+            <input type="text" id="airline" name="airline" placeholder="Enter airline name">
+
+            <label for="origin">Search by Origin Airport:</label>
+            <input type="text" id="origin" name="origin" placeholder="Enter origin airport">
+
+            <button type="submit">Search</button>
+        </form>
+
+        <br>
+        <a href="/chart">View Flight Chart</a> | 
+        <a href="/delay_analysis">View Delay Analysis</a> | 
+        <a href="/feedback_summary">View Feedback</a> | 
+        <a href="/recommendations">View Recommendations</a>
+
+        <h2>Filtered Flight Data</h2>
+        {{ table|safe }}
+
+        <h2>Interactive Airline Delay Chart</h2>
+        <div id="chart"></div>
+
+        <script>
+            fetch("/interactive_chart")
+            .then(response => response.json())
+            .then(data => {
+                let fig = JSON.parse(data);
+                Plotly.newPlot("chart", fig.data, fig.layout);
+            })
+            .catch(error => console.error("Error loading chart:", error));
+        </script>
+
+        <h2>Monthly Flight Delay Trends</h2>
+        <div id="line_chart"></div>
+
+        <script>
+            fetch("/line_chart")
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    let fig = JSON.parse(data);
+                    Plotly.newPlot("line_chart", fig.data, fig.layout);
+                } else {
+                    console.error("No data received for line chart.");
+                }
+            })
+            .catch(error => console.error("Error loading line chart:", error));
+        </script>
+    </div>
+
+    <!-- Styled Feedback Form -->
+    <h2>Submit Your Feedback</h2>
+    <form id="feedbackForm" method="POST" action="/submit_feedback" onsubmit="return validateFeedback()">
+        <h3>Rate Your Flight Experience</h3>
+
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" name="name" required placeholder="Enter your name">
+
+        <label for="airline_feedback">Airline:</label>
+        <input type="text" id="airline_feedback" name="airline" required placeholder="Enter airline name">
+
+        <label for="delay_rating">Delay Rating (1-10):</label>
+        <input type="number" id="delay_rating" name="delay_rating" min="1" max="10" required placeholder="Rate 1-10">
+
+        <button type="submit">Submit Feedback</button>
+    </form>
+
+    <script>
+        function validateFeedback() {
+            let name = document.getElementById("name").value;
+            let airline = document.getElementById("airline_feedback").value;
+            let rating = document.getElementById("delay_rating").value;
+
+            if (!name || !airline || rating < 1 || rating > 10) {
+                alert("Please fill out all required feedback fields correctly.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</body>
+</html>

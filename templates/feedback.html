@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback Summary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>User Feedback Summary</h1>
+        <p>Below is the average delay rating given by users per airline:</p>
+        {{ table|safe }}
+
+        <a href="/" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+</body>
+</html>
